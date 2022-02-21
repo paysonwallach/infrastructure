@@ -1,0 +1,19 @@
+#!/bin/sh
+
+SALUTATION="Good"
+HOUR=$(date +"%H")
+
+if [ "$HOUR" -gt 5 ] && [ "$HOUR" -lt 12 ]; then
+    PERIOD="morning"
+elif [ "$HOUR" -ge 12 ] && [ "$HOUR" -le 18 ]; then
+    PERIOD="afternoon"
+else
+    PERIOD="evening"
+fi
+
+PPID1=$(cat "/proc/$PPID/status" | grep PPid | awk '{ print $2 }')
+PPID2=$(cat "/proc/$PPID1/status" | grep PPid | awk '{ print $2 }')
+USERNAME=$(ps -ax | grep "$PPID2" | awk 'NR == 1' | awk '{ print $6 }' | sed "s/@.*$//g")
+NAME=$(getent passwd "$USERNAME" | cut -d ':' -f 5 | cut -d ' ' -f 1)
+
+echo "  $SALUTATION $PERIOD, $NAME"

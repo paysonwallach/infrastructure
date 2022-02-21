@@ -1,0 +1,25 @@
+---
+- name: Cloud Configuration
+  hosts: all
+  roles:
+    - role: general
+    - role: dotstrap.fish
+    - role: paysonwallach.fisher
+    - role: geerlingguy.pip
+    - role: geerlingguy.docker
+      become: true
+    - role: analytics
+    - role: backup
+    - role: bashhub
+    - role: ephemetoot
+    - role: fail2ban
+    - role: git
+    - role: gitlist
+    - role: harbour
+    - role: nextcloud
+    - role: pass
+    - role: podcasts
+    - role: proxy
+    - role: rss2email
+    - role: static
+    - role: wallabag

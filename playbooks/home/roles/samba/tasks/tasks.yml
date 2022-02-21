@@ -1,0 +1,40 @@
+---
+- name: samba
+  docker_container:
+    name: samba
+    image: servercontainers/samba
+    pull: true
+    env:
+      AVAHI_NAME: "Tethys"
+      MODEL: "TimeCapsule"
+      ACCOUNT_paysonwallach: "SAMBA__ACCOUNT__PAYSONWALLACH__PASSWORD"
+      UID_paysonwallach: "1001"
+      SAMBA_VOLUME_CONFIG_movies_ro: >
+        [Movies];
+        path = /share/movies;
+        guest ok = yes;
+        read only = yes;
+        browseable = yes"
+      SAMBA_VOLUME_CONFIG_shows_ro: >
+        [Shows];
+        path = /share/shows;
+        guest ok = yes;
+        read only = yes;
+        browseable = yes
+      # SAMBA_VOLUME_CONFIG_timemachine: >
+      #   [TimeMachine];
+      #   path = /shares/timemachine/%U;
+      #   valid users = paysonwallach;
+      #   guest ok = no;
+      #   read only = no;
+      #   browseable = no;
+      #   fruit:time machine = yes;
+      #   fruit:time machine max size = 500G;
+    volumes:
+      - /storage/backup:/share/backup
+      - /storage/movies:/share/movies
+      - /storage/podcasts:/share/podcasts
+      - /storage/shows:/share/shows
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+    network_mode: host

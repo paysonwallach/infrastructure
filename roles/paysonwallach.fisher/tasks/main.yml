@@ -1,0 +1,25 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes
+  when: install
+  become: true
+
+- name: Install git
+  apt: name=git state=present
+  when: install
+  become: true
+
+- name: Install fisher
+  shell: curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+  args:
+    executable: /usr/bin/fish
+  when: install
+  tags: fisher
+
+- name: Install fisher Packages
+  shell: fisher install "{{  item  }}"
+  args:
+    executable: /usr/bin/fish
+  loop: "{{  fisher_packages  }}"
+  when: install
+  tags: fisher

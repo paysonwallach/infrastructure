@@ -1,0 +1,25 @@
+---
+- name: Find absolute path to systemd-inhibit
+  shell: # noqa 305 we need shell as this sets up the path's correctly
+    cmd: which systemd-inhibit
+  register: which_system_inhibit
+  changed_when: False
+- name: install borgmatic systemd unit file
+  template:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/borgmatic.service
+    mode: '0644'
+  with_first_found:
+    - "borgmatic-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.service.j2"
+    - "borgmatic-{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.service.j2"
+    - "borgmatic.service.j2"
+- name: install borgmatic systemd timer file
+  template:
+    src: borgmatic.timer.j2
+    dest: /etc/systemd/system/borgmatic.timer
+    mode: '0644'
+- name: Make sure borgmatic timer is running
+  systemd:
+    name: borgmatic.timer
+    state: started
+    enabled: yes

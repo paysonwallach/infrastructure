@@ -1,0 +1,2 @@
+[all]
+tethys ansible_host=tethys.local ansible_ssh_private_key_file=~/.ssh/tethys

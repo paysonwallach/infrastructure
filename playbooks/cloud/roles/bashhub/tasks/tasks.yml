@@ -1,0 +1,25 @@
+---
+- name: Create "bashhub" volume
+  docker_volume:
+    name: bashhub
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ bashhub_data }}"
+      map: "1001/0:@1001/@0"
+
+- name: bashhub
+  docker_container:
+    name: bashhub
+    image: nicksherron/bashhub-server
+    pull: true
+    volumes:
+      - "bashhub:/data"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add "bashhub" to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - bashhub
+    appends: true

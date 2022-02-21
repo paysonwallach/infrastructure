@@ -1,0 +1,34 @@
+# add configuration overrides to this file.
+# see group_vars/all.yml for all possible variables.
+---
+# general
+hostname: tethys.local
+timezone: Europe/Zurich
+extra_packages:
+keep_packages_updated: true
+target_user: paysonwallach
+home_dir: "/home/{{ target_user }}"
+
+# geerlingguy.pip
+pip_install_packages:
+  - name: docker
+
+# geerlingguy.docker
+docker_install_compose: false
+docker_users: "[{{ target_user }}]"
+
+# fisher
+fisher_packages:
+  - edc/bass
+  - laughedelic/pisces
+  - oh-my-fish/plugin-bang-bang
+  - paysonwallach/fish-you-should-use
+  - pure-fish/pure
+
+ci_data: "{{ home_dir }}/ci"
+depot_data: "{{ home_dir }}/depot"
+depot_repository: "/storage/repository"
+proxy_data: "{{ home_dir }}/proxy"
+transmission_data: "/storage/transmission"
+
+install: false

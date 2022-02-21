@@ -1,0 +1,27 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+  options:
+    # options relevant if started with molecule `create -d delegated` to apply locally
+    managed: False
+    ansible_connection_options:
+      ansible_connection: local
+platforms:
+  - name: instance
+    image: "docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    # Not sure why empty command. Maybe to make sure systemd is PID 1?
+    command: ""
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    privileged: True
+provisioner:
+  name: ansible
+  log: True
+  inventory:
+    host_vars:
+      instance:
+        ansible_user: ansible
+verifier:
+  name: ansible

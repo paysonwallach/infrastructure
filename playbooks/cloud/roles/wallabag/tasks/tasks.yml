@@ -1,0 +1,54 @@
+---
+- name: Create "wallabag.images" volume
+  docker_volume:
+    name: wallabag.images
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ wallabag_data }}/images"
+      map: "1001/0:@1001/@0"
+
+- name: Create "wallabag.data" volume
+  docker_volume:
+    name: wallabag.data
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ wallabag_data }}/data/db"
+      map: "1001/0:@1001/@0"
+
+- name: smtp
+  docker_container:
+    name: smtp
+    image: ixdotai/smtp
+    pull: true
+    env:
+      SMARTHOST_ADDRESS: "smtp.mailbox.org"
+      SMARTHOST_PORT: "587"
+      SMARTHOST_USER: "payson@paysonwallach.com"
+      SMARTHOST_PASSWORD: "WALLABAG__SMARTHOST_PASSWORD"
+      SMARTHOST_ALIASES: "*.mailbox.org"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: wallabag
+  docker_container:
+    name: wallabag
+    image: wallabag/wallabag
+    pull: true
+    env:
+      SYMFONY__ENV__MAILER_HOST: smtp
+      SYMFONY__ENV__FROM_EMAIL: payson@paysonwallach.com
+      SYMFONY__ENV__DOMAIN_NAME: https://wallabag.paysonwallach.com
+    links:
+      - smtp:smtp
+    volumes:
+      - "wallabag.images:/var/www/wallabag/web/assets/images"
+      - "wallabag.data:/var/www/wallabag/data/db"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add "wallabag" to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - wallabag
+    appends: true

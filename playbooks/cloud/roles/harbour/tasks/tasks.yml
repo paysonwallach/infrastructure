@@ -1,0 +1,44 @@
+---
+- name: Create "harbour.registry" volume
+  docker_volume:
+    name: gitlist.repositories
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ harbour_data }}/registry"
+      map: "1001/0:@1001/@0"
+
+- name: harbour.app
+  docker_container:
+    name: harbour.app
+    image: quiq/docker-registry-ui
+    pull: true
+    volumes:
+      - "{{ harbour_data }}/app/opt/config/config.yml:/opt/config.yml:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: harbour.registry
+  docker_container:
+    name: harbour.registry
+    image: registry:2
+    pull: true
+    env:
+      REGISTRY_HTTP_ADDR: "0.0.0.0:5000"
+      REGISTRY_HTTP_TLS_CERTIFICATE: "/etc/letsencrypt/live/harbour.paysonwallach.com/fullchain.pem"
+      REGISTRY_HTTP_TLS_KEY: "/etc/letsencrypt/live/harbour.paysonwallach.com/privkey.pem"
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+    volumes:
+      # need to bind mount files themselves because they are symlinks
+      - "{{ proxy_data }}/etc/letsencrypt/live/harbour.paysonwallach.com/fullchain.pem:/etc/letsencrypt/live/harbour.paysonwallach.com/fullchain.pem:ro"
+      - "{{ proxy_data }}/etc/letsencrypt/live/harbour.paysonwallach.com/privkey.pem:/etc/letsencrypt/live/harbour.paysonwallach.com/privkey.pem:ro"
+      - "harbour.registry:/var/lib/registry"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add "harbour" to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - harbour.app
+      - harbour.registry
+    appends: true

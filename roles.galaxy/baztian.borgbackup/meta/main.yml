@@ -1,0 +1,16 @@
+galaxy_info:
+  author: baztian
+  role_name: borgbackup
+  description: Role for installing BorgBackup along with borgmatic
+  license: MIT
+  min_ansible_version: 2.0
+  platforms:
+  - name: Ubuntu
+    versions:
+    - xenial
+  galaxy_tags:
+    - backup
+    - borgbackup
+    - borg
+    - borgmatic
+dependencies: []

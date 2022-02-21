@@ -1,0 +1,25 @@
+---
+hostname: ansible-nas
+
+# see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# for a list of valid time zone names
+timezone: Etc/UTC
+
+copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/paysonwallach.com.pub') }}"
+
+# update all apt packages when playbook is run
+keep_packages_updated: false
+
+# extra packages to install
+extra_packages:
+  - bonnie++
+  - ctop
+  - curl
+  - git
+  - htop
+  - lm-sensors
+  - software-properties-common
+  - smartmontools
+  - ufw
+  - unzip
+  - zfsutils-linux

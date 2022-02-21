@@ -1,0 +1,40 @@
+---
+- name: Create "fail2ban" volume
+  docker_volume:
+    name: fail2ban
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ fail2ban_data }}/data"
+      map: "1001/0:@1001/@0"
+
+- name: fail2ban
+  docker_container:
+    name: fail2ban
+    image: crazymax/fail2ban
+    pull: true
+    env:
+      TZ: "{{ timezone }}"
+      F2B_LOG_TARGET: "STDOUT"
+      F2B_LOG_LEVEL: "INFO"
+      F2B_DB_PURGE_AGE: "1d"
+      SSMTP_HOST: "smtp.mailbox.org"
+      SSMTP_PORT: "587"
+      SSMTP_HOSTNAME: "mailbox.org"
+      SSMTP_USER: "payson@paysonwallach.com"
+      SSMTP_PASSWORD: "UNSTEADY-reverence-UNWANTED-CR3ATURE"
+      SSMTP_TLS: "YES"
+    capabilities:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - "fail2ban:/data"
+      - "{{ fail2ban_data }}/log:/var/log:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add "fail2ban" to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - fail2ban
+    appends: true

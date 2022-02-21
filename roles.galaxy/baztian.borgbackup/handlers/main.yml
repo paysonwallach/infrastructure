@@ -1,0 +1,4 @@
+---
+- name: Init Borgmatic repos
+  command: "borgmatic init --encryption {{ borgmatic_init_encryption }}"
+  when: borgmatic_init_repos | default("true") | bool

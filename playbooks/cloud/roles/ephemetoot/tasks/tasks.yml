@@ -1,0 +1,14 @@
+---
+- name: ephemetoot
+  docker_container:
+    name: ephemetoot
+    image: harbour.paysonwallach.com/paysonwallach/ephemetoot
+    pull: true
+    env:
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ ephemetoot_data }}/archive:/root/archive"
+      - "{{ ephemetoot_data }}/logs/ephemetoot.log:/var/log/ephemetoot.log"
+      - "{{ ephemetoot_data }}/config.yaml:/root/config.yaml"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped

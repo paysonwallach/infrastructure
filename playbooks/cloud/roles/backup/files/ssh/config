@@ -1,0 +1,4 @@
+Host tethys.local
+  IdentityFile /home/paysonwallach/.ssh/tethys.local
+  Hostname localhost
+  Port 49504

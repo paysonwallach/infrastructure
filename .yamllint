@@ -1,0 +1,16 @@
+---
+extends: default
+
+ignore: |
+  node_modules
+  roles.galaxy
+
+rules:
+  braces:
+    min-spaces-inside: 1
+    max-spaces-inside: -1
+  line-length:
+    max: 200
+    level: warning
+  truthy:
+    allowed-values: ['true', 'yes', 'false', 'no']

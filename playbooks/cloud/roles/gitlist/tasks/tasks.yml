@@ -1,0 +1,31 @@
+---
+- name: Create "repositories" volume
+  docker_volume:
+    name: gitlist.repositories
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ git_data }}/repositories"
+      map: "1001/0:@1001/@0"
+
+- name: gitlist
+  docker_container:
+    name: gitlist
+    image: harbour.paysonwallach.com/paysonwallach/gitlist
+    pull: true
+    env:
+      PUID: "1001"
+      PGID: "1001"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ git_data }}/data/config.ini:/var/www/gitlist/config.ini:ro"
+      - "{{ git_data }}/themes/irbc:/var/www/gitlist/themes/irbc:ro"
+      - "gitlist.repositories:/repositories:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: "Add gitlist to Network"
+  community.general.docker_network:
+    name: backend
+    connected:
+      - gitlist
+    appends: true

@@ -1,0 +1,23 @@
+---
+- name: Ensures /etc/borgmatic.d exists
+  file:
+    path: /etc/borgmatic.d
+    state: directory
+    mode: 0700
+    owner: root
+- name: Transform borgmatic_configs to a list of dicts
+  set_fact:
+    bormgatic_list_dicts_name_config: |
+        {% set res = [] -%}
+        {% for key, value in borgmatic_configs.items() -%}
+            {% set ignored = res.append({'name': key, 'config':value}) -%}
+        {%- endfor %}
+        {{ res }}
+- name: Add Borgmatic Configurations
+  template:
+    src: borgmatic_app.yml.j2
+    dest: "/etc/borgmatic.d/{{ item.name }}.yml"
+    mode: 0600
+  with_items: "{{ bormgatic_list_dicts_name_config }}"
+  notify:
+    - Init Borgmatic repos

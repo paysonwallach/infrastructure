@@ -1,0 +1,41 @@
+# add configuration overrides to this file.
+# see group_vars/all.yml for all possible variables.
+---
+# general
+hostname: fps-prod-001
+timezone: Europe/Zurich
+extra_packages:
+keep_packages_updated: true
+target_user: paysonwallach
+home_dir: "/home/{{ target_user }}"
+
+# geerlingguy.pip
+pip_install_packages:
+  - name: docker
+
+# geerlingguy.docker
+docker_install_compose: false
+docker_users: "[{{ target_user }}]"
+
+# fisher
+fisher_packages:
+  - edc/bass
+  - laughedelic/pisces
+  - oh-my-fish/plugin-bang-bang
+  - paysonwallach/fish-you-should-use
+  - pure-fish/pure
+
+# application data locations
+analytics_data: "{{ home_dir }}/analytics"
+bashhub_data: "{{ home_dir }}/bashhub"
+ephemetoot_data: "{{ home_dir }}/ephemetoot"
+fail2ban_data: "{{ home_dir }}/fail2ban"
+git_data: "{{ home_dir }}/git"
+harbour_data: "{{ home_dir }}/harbour"
+nextcloud_data: "{{ home_dir }}/nextcloud"
+pass_data: "{{ home_dir }}/pass"
+podcasts_data: "{{ home_dir }}/podcasts"
+proxy_data: "{{ home_dir }}/proxy"
+rss_data: "{{ home_dir }}/rss"
+static_data: "{{ home_dir }}/static"
+wallabag_data: "{{ home_dir }}/wallabag"

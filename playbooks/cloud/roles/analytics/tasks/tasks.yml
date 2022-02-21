@@ -1,0 +1,68 @@
+---
+- name: Create "analytics.database" volume
+  docker_volume:
+    name: analytics.database
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ analytics_data }}/database"
+      map: "1001/999:@1001/@999"
+
+- name: Create "analytics.app" volume
+  docker_volume:
+    name: analytics.app
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ analytics_data }}/app"
+      map: "1001/82:@1001/@82"
+
+- name: analytics.database
+  docker_container:
+    name: analytics.database
+    image: mariadb
+    pull: true
+    command: --max-allowed-packet=64MB
+    env:
+      MYSQL_DATABASE: "matomo"
+      MYSQL_USER: "matomo"
+      MYSQL_PASSWORD: "aLoo9ahK1ud9Vah4quo6oosi7aeP2ooj"
+      MYSQL_ROOT_PASSWORD: ""
+    volumes:
+      - "analytics.database:/var/lib/mysql"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: analytics.app
+  docker_container:
+    name: analytics.app
+    image: matomo:fpm-alpine
+    pull: true
+    env:
+      MATOMO_DATABASE_HOST: "analytics.database"
+      MATOMO_DATABASE_DBNAME: "matomo"
+      MATOMO_DATABASE_USERNAME: "matomo"
+      MATOMO_DATABASE_PASSWORD: "aLoo9ahK1ud9Vah4quo6oosi7aeP2ooj"
+      MATOMO_DATABASE_TABLES_PREFIX: "matomo_"
+    volumes:
+      - "analytics.app:/var/www/analytics.paysonwallach.com"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: analytics.proxy
+  docker_container:
+    name: analytics.proxy
+    image: bitnami/nginx
+    pull: true
+    volumes:
+      - "{{ analytics_data }}/app:/var/www/analytics.paysonwallach.com:ro"
+      - "{{ analytics_data }}/proxy/etc/nginx/conf.d/analytics.paysonwallach.com.conf:/opt/bitnami/nginx/conf/server_blocks/analytics.paysonwallach.com.conf:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add analytics services to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - analytics.app
+      - analytics.database
+      - analytics.proxy
+    appends: true

@@ -1,0 +1,17 @@
+---
+- name: Home Configuration
+  hosts: all
+  roles:
+    - role: general
+    - role: dotstrap.fish
+    - role: paysonwallach.fisher
+    - role: geerlingguy.pip
+    - role: geerlingguy.docker
+      become: true
+    - role: autoupgrade
+    - role: ci
+    - role: depot
+    - role: plex
+    - role: proxy
+    - role: samba
+    - role: transmission

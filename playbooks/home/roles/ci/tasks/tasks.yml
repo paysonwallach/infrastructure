@@ -1,0 +1,56 @@
+---
+- name: concourse.database
+  docker_container:
+    name: concourse.database
+    image: bitnami/postgresql
+    pull: true
+    env:
+      POSTGRES_DB: concourse
+      POSTGRES_PASSWORD: concourse_pass
+      POSTGRES_USER: concourse_user
+    volumes:
+      - "{{ ci_data }}/database:/bitnami/postgresql"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: concourse.app
+  docker_container:
+    name: concourse.app
+    image: concourse/concourse
+    pull: true
+    privileged: true
+    command: quickstart
+    env:
+      CONCOURSE_POSTGRES_HOST: concourse.database
+      CONCOURSE_POSTGRES_USER: concourse_user
+      CONCOURSE_POSTGRES_PASSWORD: concourse_pass
+      CONCOURSE_POSTGRES_DATABASE: concourse
+      CONCOURSE_EXTERNAL_URL: http://concourse.app:8080
+      CONCOURSE_ADD_LOCAL_USER: test:test
+      CONCOURSE_MAIN_TEAM_LOCAL_USER: test
+      # instead of relying on the default "detect"
+      CONCOURSE_WORKER_BAGGAGECLAIM_DRIVER: overlay
+      CONCOURSE_CLIENT_SECRET: Y29uY291cnNlLXdlYgo=
+      CONCOURSE_TSA_CLIENT_SECRET: Y29uY291cnNlLXdvcmtlcgo=
+      CONCOURSE_X_FRAME_OPTIONS: allow
+      CONCOURSE_CONTENT_SECURITY_POLICY: "*"
+      CONCOURSE_CLUSTER_NAME: tutorial
+      CONCOURSE_WORKER_CONTAINERD_DNS_SERVER: "8.8.8.8"
+      CONCOURSE_WORKER_RUNTIME: "containerd"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: create ci network
+  community.general.docker_network:
+    name: ci
+    connected:
+      - concourse.app
+      - concourse.database
+    appends: true
+
+- name: add app to network
+  community.general.docker_network:
+    name: backend
+    connected:
+      - concourse.app
+    appends: true

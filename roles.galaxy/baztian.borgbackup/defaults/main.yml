@@ -1,0 +1,9 @@
+---
+# Only relevant if borgbackup is to be downloaded as static binary
+borgbackup_unpackaged_version: 1.1.9
+borgbackup_unpackaged_sha256: 47154eafe160a6d59afbf90b2e7c7569c13d63cad96ee3f3bb31cc8d2a4e60a3
+borgmatic_unpackaged_version: 1.5.1
+borgmatic_init_encryption: "none"
+borgmatic_configs: {}
+borgmatic_timer: "Weekly"
+borgmatic_init_repos: true

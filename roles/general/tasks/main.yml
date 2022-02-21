@@ -1,0 +1,5 @@
+---
+- import_tasks: tasks.yml
+  become: yes
+  tags:
+    - general

@@ -1,0 +1,34 @@
+---
+
+#####=== global defaults ===#####
+
+# These defaults are in many of mwilliammyers' roles; override them to prevent neeeding
+# to override the corresponding role default for each role individually.
+
+# Shell startup file where settings are written to.
+# This role uses the value of this variable if it is defined.
+# default:
+#   - bash: ~/.bash_profile
+#   - zsh: ~/.zshrc
+#   - fish: ~/.config/fish/config.fish
+# shell_config_file
+
+# Directory where shell inititialization files are installed to.
+# This role uses the value of this variable if it is defined.
+# default:
+#   - bash: ($XDG_DATA_HOME | ~/.local/share)/bash/functions/
+#   - zsh: ($XDG_DATA_HOME | ~/.local/share)/zsh/functions/
+#   - fish: ~/.config/fish/functions/
+# shell_data_dir
+
+configure_state: present
+
+#####=== pure defaults ===#####
+
+# The state in which settings are written to pure_config_file via the blockinfile module.
+# choices: [ present, absent ]
+pure_configure_state: "{{ configure_state }}"
+
+# The marker line (which surrounds the text block) template.
+# "{mark}" will be replaced with "BEGIN" or "END".
+pure_marker: "#####=== {mark} Ansible managed pure-prompt settings ===#####"

@@ -1,0 +1,40 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  tasks:
+  - name: Register borgbackup version
+    command: borg --version
+    register: borgbbackup_version_cmd
+  - name: borgbackup should be at least 1.1.x
+    assert:
+      that:
+        - "'{{ borgbbackup_version_cmd.stdout|regex_replace('borg\\w*\\s+(.*)', '\\1') }}' is version('1.1.0', '>=')"
+  - name: Register borgmatic version
+    command: borgmatic --version
+    register: borgbmatic_version_cmd
+  - name: Borgmatic should be at least 1.5.x
+    assert:
+      that:
+        - borgbmatic_version_cmd.stdout is version('1.5.0', '>=')
+  - name: Register borgmatic list
+    command: borgmatic list
+    register: borgmatic_list_cmd
+    become: yes
+  - name: Borgmatic list should contain both repos
+    assert:
+      that:
+        - "borgmatic_list_cmd.stdout is search('/srv/backup_etc: Listing archives')"
+        - "borgmatic_list_cmd.stdout is search('/srv/backup_home: Listing archives')"
+  - name: Populate service facts
+    service_facts:
+    become: yes
+    # Only works for ansible > 2.9.8. See https://github.com/ansible/ansible/pull/20177
+    when: ansible_version.full is version('2.9.8', '>=')
+  - name: Borgmatic service should be known to systemd
+    assert:
+      that:
+        - ansible_facts.services['borgmatic.service'].state == 'stopped'
+        - ansible_facts.services['borgmatic.service'].status == 'static'
+    when: ansible_version.full is version('2.9.8', '>=')

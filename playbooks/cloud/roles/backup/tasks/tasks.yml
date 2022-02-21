@@ -1,0 +1,29 @@
+---
+- name: Configure Borg
+  include_role:
+    name: baztian.borgbackup
+  vars:
+    borgmatic_init_repos: true
+    borgmatic_timer: "*-*-* *:00:00"
+    borgmatic_configs:
+      home:
+        location:
+          source_directories:
+            - "{{ analytics_data }}"
+            - "{{ bashhub_data }}"
+            - "{{ ephemetoot_data }}"
+            - "{{ fail2ban_data }}"
+            - "{{ git_data }}"
+            - "{{ nextcloud_data }}"
+            - "{{ proxy_data }}"
+            - "{{ pass_data }}"
+            - "{{ rss_data }}"
+            - "{{ wallabag_data }}"
+          repositories:
+            - paysonwallach@tethys.local:/storage/backup/paysonwallach.com
+        retention:
+          keep_daily: 7
+          keep_weekly: 4
+          keep_monthly: 6
+        storage:
+          encryption_passphrase: "hYpYF2jtmp1UVIXCJQYu5UoVr3EibAg0"

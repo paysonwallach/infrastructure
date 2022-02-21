@@ -1,0 +1,22 @@
+---
+- name: Log into private registry
+  community.docker.docker_login:
+    registry_url: harbour.paysonwallach.com
+    username: paysonwallach
+    password: "unsolved-BASIL-ACHINESS-FIFTEEN"
+
+- name: autoupgrade
+  docker_container:
+    name: autoupgrade
+    image: harbour.paysonwallach.com/autoupgrade
+    pull: true
+    env:
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ home_dir }}/.git-credentials:/home/autoupgrade/.git-credentials"
+      - "{{ home_dir }}/.gitconfig:/home/autoupgrade/.gitconfig"
+      - "/storage/repositories:/repositories"
+      - "{{ home_dir }}/autoupgrade/logs/upgrade.log:/var/log/upgrade.log"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+    network_mode: host

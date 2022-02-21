@@ -1,0 +1,90 @@
+---
+- name: "Set hostname to {{ hostname }}"
+  hostname:
+    name: "{{ hostname }}"
+
+- name: "Set timezone to {{ timezone }}"
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Set login banner
+  copy:
+    src: 10-greeting
+    dest: /etc/update-motd.d
+    mode: 0755
+
+- name: Make sure we have a 'wheel' group
+  group:
+    name: wheel
+    state: present
+
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^%wheel"
+    line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: Create a new regular target_user with sudo privileges
+  user:
+    name: "{{ target_user }}"
+    state: present
+    groups: wheel
+    append: true
+    create_home: true
+
+- name: Set authorized key for remote target_user
+  authorized_key:
+    user: "{{ target_user }}"
+    state: present
+    key: "{{ copy_local_key }}"
+
+- name: Disable password authentication for root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin prohibit-password"
+
+- name: Enable Universe repository
+  raw: apt-add-repository universe
+  register: add_repo_result
+  changed_when: >
+    "'distribution component enabled for all sources' in add_repo_result.stdout"
+  until: add_repo_result.rc == 0
+  retries: 3
+  delay: 1
+
+- name: Update apt-cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  register: result
+  until: result is succeeded
+
+- name: Upgrade all packages
+  apt:
+    upgrade: true
+    state: latest
+  when: keep_packages_updated
+  tags:
+    - skip_ansible_lint
+
+- name: Install some packages
+  apt:
+    name: "{{ extra_packages }}"
+    state: present
+  register: result
+  until: result is succeeded
+
+- name: UFW - Allow SSH connections
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: UFW - Deny all other incoming traffic by default
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming

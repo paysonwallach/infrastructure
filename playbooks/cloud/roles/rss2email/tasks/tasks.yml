@@ -1,0 +1,32 @@
+---
+- name: Create "rss.config" volume
+  docker_volume:
+    name: rss.config
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ rss_data }}/config"
+      map: "1001/0:@1001/@0"
+
+- name: Create "rss.data" volume
+  docker_volume:
+    name: rss.data
+    driver: lebokus/bindfs:latest
+    driver_options:
+      sourcePath: "{{ rss_data }}/data"
+      map: "1001/0:@1001/@0"
+
+- name: rss2email
+  docker_container:
+    name: rss
+    image: paysonwallach/rss2email
+    pull: false
+    env:
+      PUID: "1001"
+      PGID: "1001"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "rss.config:/config"
+      - "rss.data:/data"
+      - "{{ rss_data }}/logs/rss2email.log:/var/log/rss2email.log"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped

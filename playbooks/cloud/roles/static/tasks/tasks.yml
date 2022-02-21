@@ -1,0 +1,18 @@
+---
+- name: static
+  docker_container:
+    name: static
+    image: bitnami/nginx
+    pull: true
+    volumes:
+      - "{{ static_data }}/data/paysonwallach.com:/var/www/paysonwallach.com:ro"
+      - "{{ static_data }}/proxy/etc/nginx/conf.d/paysonwallach.com.conf:/opt/bitnami/nginx/conf/server_blocks/paysonwallach.com.conf:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: 'Add "static" to Network'
+  community.general.docker_network:
+    name: backend
+    connected:
+      - static
+    appends: true

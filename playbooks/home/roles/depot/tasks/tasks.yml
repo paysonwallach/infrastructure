@@ -1,0 +1,18 @@
+---
+- name: create container
+  docker_container:
+    name: depot.proxy
+    image: bitnami/nginx
+    pull: true
+    volumes:
+      - "{{ depot_data }}/proxy/etc/nginx/conf.d:/opt/bitnami/nginx/conf/server_blocks:ro"
+      - "{{ depot_repository }}:/app:ro"
+    container_default_behavior: no_defaults
+    restart_policy: unless-stopped
+
+- name: add proxy to network
+  community.general.docker_network:
+    name: backend
+    connected:
+      - depot.proxy
+    appends: true

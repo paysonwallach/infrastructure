@@ -1,0 +1,9 @@
+---
+- name: Install tmux
+  package:
+    name: tmux
+    state: present
+  tags: tmux
+
+- name: Install tmux plugin manager
+  git: repo=https://github.com/tmux-plugins/tpm dest="{{ home_path }}/.tmux/plugins/tpm" update=yes
